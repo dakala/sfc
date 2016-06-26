@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ */
+
+use Drupal\Core\Url;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Field\FormatterInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+
+/**
+ * Implements hook_help().
+ */
+function sfc_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.sfc':
+      $output = '';
+      $output .= '<h3>' . t('Simple Fullcalendar') . '</h3>';
+      $output .= '<p>' . t('The Simple Fullcalendar module is a basic integration of the <a href="!fullcalendar-uri">Adam Shaw\'s FullCalendar jQuery plugin</a> with Drupal.', array('!fullcalendar-uri' => Url::fromUri('https://github.com/arshaw/fullcalendar'))) . '</p>';
+      return $output;
+  }
+}
+
+
+/**
+ * Add Simple Fullcalendar settings to datetime field formatters.
+ *
+ * @param \Drupal\Core\Field\FormatterInterface $plugin
+ *   The instantiated field formatter plugin.
+ * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+ *   The field definition.
+ * @param $view_mode
+ *   The entity view mode.
+ * @param array $form
+ *   The configuration form array.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ *
+ * @return array
+ *   Returns the form array to be built.
+ *
+ * @see \Drupal\field_ui\DisplayOverView.
+ */
+function sfc_field_formatter_third_party_settings_form(FormatterInterface $plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
+  $element = array();
+  $plugin_type_info = $plugin->getPluginDefinition();
+  if (in_array('datetime', $plugin_type_info['field_types'])) {
+    $element['sfc_date_field_setting'] = [
+      '#type' => 'select',
+      '#options' => ['' => t('- None selected -'), 'start' => 'Start date', 'end' => 'End date'],
+      '#title' => t('Simple Fullcalendar setting'),
+      '#default_value' => $plugin->getThirdPartySetting('sfc', 'sfc_date_field_setting'),
+    ];
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Adds group options to the node type form.
+ *
+ * @see NodeTypeForm::form().
+ * @see sug_form_node_type_form_submit().
+ */
+function sfc_form_node_type_form_alter(&$form, FormStateInterface $form_state) {
+  $form['sfc'] = [
+    '#type' => 'details',
+    '#title' => t('Simple fullcalendar'),
+    '#group' => 'additional_settings',
+  ];
+
+  $type = $form_state->getFormObject()->getEntity()->id();
+  $settings = \Drupal::configFactory()->getEditable('sfc.settings')->get('sfc_entity.' . $type);
+  $form['sfc']['enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Display in Simple fullcalendar'),
+    '#default_value' => (!empty($settings)) ? $settings['enabled'] : 0,
+  ];
+
+  $form['sfc']['limit'] = [
+    '#type' => 'textfield',
+    '#title' => t('Limit'),
+    '#default_value' => (!empty($settings)) ? $settings['limit'] : '0',
+    '#size' => 10,
+    '#maxlength' => '10',
+    '#description' => t('Total items of this type to display. 0 = no limit'),
+  ];
+
+  $form['sfc']['color'] = [
+    '#type' => 'textfield',
+    '#title' => t('Color'),
+    '#default_value' => (!empty($settings)) ? $settings['color'] : '#000',
+    '#size' => 10,
+    '#maxlength' => '10',
+    '#description' => t('Background colour for all nodes of this type.'),
+  ];
+
+  $form['sfc']['textColor'] = [
+    '#type' => 'textfield',
+    '#title' => t('Text color'),
+    '#default_value' => (!empty($settings)) ? $settings['textColor'] : '#fff',
+    '#size' => 10,
+    '#maxlength' => '10',
+    '#description' => t('Text colour for all nodes of this type.'),
+  ];
+
+  foreach (array_keys($form['actions']) as $action) {
+    if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'sfc_form_node_type_form_submit';
+    }
+  }
+}
+
+/**
+ * Submit callback for the node type form to save the fullcalendar node settings.
+ */
+function sfc_form_node_type_form_submit($form, FormStateInterface $form_state) {
+  $type = $form_state->getFormObject()->getEntity()->id();
+  $settings = [
+    'enabled' => $form_state->getValue('enabled'),
+    'limit' => $form_state->getValue('limit'),
+    'color' => $form_state->getValue('color'),
+    'textColor' => $form_state->getValue('textColor')
+  ];
+  \Drupal::configFactory()->getEditable('sfc.settings')->set('sfc_entity.' . $type, $settings)->save();
+}

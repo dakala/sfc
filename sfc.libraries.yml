@@ -1,0 +1,15 @@
+sfc.calendar:
+  version: 1.x
+  css:
+    component:
+      /libraries/fullcalendar/fullcalendar.min.css: {}
+      /libraries/fullcalendar/fullcalendar.print.css: { media: print }
+      css/sfc.css: {}
+  js:
+    /libraries/fullcalendar/lib/moment.min.js: {}
+    /libraries/fullcalendar/lib/jquery-ui.custom.min.js: {}
+    /libraries/fullcalendar/fullcalendar.min.js: {}
+    js/sfc.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

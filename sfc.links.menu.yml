@@ -1,0 +1,5 @@
+sf.calendar:
+  title: 'News & Events'
+  route_name: 'sf.calendar'
+  menu_name: main
+  weight: 1

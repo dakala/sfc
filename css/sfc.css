@@ -1,0 +1,15 @@
+
+#calendar {
+}
+#calendar table table {
+    margin: 0;
+}
+#calendar tr {
+    background: inherit;
+    padding: inherit;
+    border-bottom: inherit;
+
+}
+#calendar td a {
+    text-decoration: none;
+}

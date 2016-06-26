@@ -1,0 +1,14 @@
+sf.calendar:
+  path: 'calendar'
+  defaults:
+    _controller: '\Drupal\sfc\Controller\SimpleFullcalendar::calendar'
+    _title: 'Event Calendar'
+  requirements:
+    _permission: 'access content'
+sf.json:
+  path: 'calendar/calendar.json'
+  defaults:
+    _controller: '\Drupal\sfc\Controller\SimpleFullcalendar::json'
+    _title: 'Event JSON'
+  requirements:
+    _permission: 'access content'

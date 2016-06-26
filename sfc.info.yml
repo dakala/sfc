@@ -1,0 +1,7 @@
+name: 'Simple Fullcalendar'
+description: 'Display events in fullcalendar.'
+type: module
+dependencies:
+  - datetime
+features: true
+core: '8.x'
